@@ -1,22 +1,38 @@
+# Dependency updates are proposed into `dev`, like every other change, and
+# reach `main` with the next promotion. Security fixes are always proposed.
+# Routine updates are limited to minor and patch releases: a major release
+# usually needs code changes and is taken deliberately, not by a bot.
 version: 2
 updates:
   - package-ecosystem: cargo
     directory: /
+    target-branch: dev
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       rust-minor-and-patch:
         update-types: [minor, patch]
 
   - package-ecosystem: npm
     directory: /evedoo-studio
+    target-branch: dev
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: /
+    target-branch: dev
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
