@@ -1,0 +1,32 @@
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/target/
+**/*.rs.bk
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files (copied for scanning)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+vulndb.sqlite
+
+# Scan results (generated output)
+scan_results*.csv
+scan_results*.txt
+scan_results*.json
+*.csv
+*.json

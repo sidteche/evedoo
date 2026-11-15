@@ -1,0 +1,50 @@
+[package]
+name = "evedoo"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Evedoo Contributors"]
+description = "Offline CVE scanner and configuration auditor for Windows, Linux and macOS"
+repository = "https://github.com/sidteche/evedoo"
+readme = "../README.md"
+
+[dependencies]
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Database
+rusqlite = { version = "0.42", features = ["bundled"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+csv = "1.3"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Terminal Output
+owo-colors = "4.2"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# UUID generation (SBOM serial numbers)
+uuid = { version = "1", features = ["v4"] }
+
+# Credential zeroization
+zeroize = "1"
+
+[target.'cfg(windows)'.dependencies]
+# Windows Registry
+winreg = "0.52"
+
+[dev-dependencies]
+# Integration tests build fixture databases; same version and features as the
+# runtime dependency, so nothing new enters the dependency tree.
+rusqlite = { version = "0.42", features = ["bundled"] }

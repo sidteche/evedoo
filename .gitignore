@@ -1,0 +1,70 @@
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/target/
+**/*.rs.bk
+node_modules/
+dist/
+.vite/
+
+# Cargo.lock is deliberately TRACKED, not ignored. This workspace ships
+# binaries, and the Rust convention is that applications commit their
+# lockfile (only libraries omit it). Tracking it gives reproducible builds
+# and makes `cargo audit` results mean something specific rather than
+# "whatever resolved at build time".
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files (copied for scanning)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+vulndb.sqlite
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Scan results (generated output)
+scan_results*.csv
+scan_results*.txt
+scan_results*.json
+*.csv
+*.json
+
+# Sync logs
+*.log
+
+# Machine-local cargo config (absolute target-dir; would break Linux/CI)
+.cargo/
+nul
+evedoo_report.html
+audit_report.html
+audit_test.html
+
+# Shared agent task state. The blanket *.json / *.db / *.sqlite rules above
+# would silently swallow these, and they are SHARED STATE — if they are not
+# committed, a second runtime and a second checkout cannot see them.
+!.mcp.json
+!.agents/mcp_config.json
+!docs/agent-state/tasks.jsonl
+docs/agent-state/.lock
+!evedoo-studio/*.json
+!evedoo-studio/**/*.json
+!cve-db-builder/tests/fixtures/*.json
+
+# Local agent runtimes & worktrees
+.claude/
+CLAUDE.local.md

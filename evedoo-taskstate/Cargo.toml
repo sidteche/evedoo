@@ -1,0 +1,22 @@
+[package]
+name = "evedoo-taskstate"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "Apache-2.0"
+authors = ["Evedoo Contributors"]
+description = "Task-state ledger and MCP server used while developing Evedoo"
+repository = "https://github.com/sidteche/evedoo"
+publish = false
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+rmcp = { version = "3.1.4", features = ["default", "schemars", "transport-io"] }
+schemars = { version = "1.0", features = ["chrono04"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4.5", features = ["derive"] }
+fs4 = { version = "1.1.0", features = ["sync"] }

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "evedoo-taskstate": {
+      "command": "evedoo-taskstate",
+      "args": ["serve"],
+      "env": {
+        "EVEDOO_TASKSTATE_RUNTIME": "claude-code"
+      }
+    }
+  }
+}

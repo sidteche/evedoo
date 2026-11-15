@@ -1,0 +1,52 @@
+# cargo-deny configuration: the licence policy in CONTRIBUTING.md, enforced.
+# Run locally with `cargo deny check`.
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "warn"
+# "Unmaintained" notices are acted on for crates this workspace depends on
+# directly; for transitive ones there is nothing to upgrade to.
+unmaintained = "workspace"
+ignore = [
+    # quick-xml is reached only through eframe's Linux desktop integration
+    # (Wayland protocol code generation at build time, D-Bus accessibility).
+    # evedoo-gui is a Windows-only application and is never built for Linux,
+    # and no Evedoo code parses XML. Remove when eframe is upgraded.
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml: only in eframe's Linux-only dependencies; the GUI is Windows-only" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml: only in eframe's Linux-only dependencies; the GUI is Windows-only" },
+]
+
+[licenses]
+version = 2
+# Permissive licences only. No GPL, LGPL, AGPL or MPL: a dependency that
+# offers one of those must also offer a licence listed here.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "BSL-1.0",
+    "Unicode-3.0",
+    "CC0-1.0",
+]
+confidence-threshold = 0.9
+
+# The GUI embeds egui's default fonts, which carry font licences. They cover
+# the font files only and are the single exception to the list above.
+[[licenses.exceptions]]
+crate = "epaint_default_fonts"
+allow = ["OFL-1.1", "Ubuntu-font-1.0"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

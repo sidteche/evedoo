@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+# Nothing here needs to write to the repository.
+permissions:
+  contents: read
+
+# Cancel in-progress runs when a new commit lands on the same branch/PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  rust:
+    name: rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            packages: --workspace
+          # evedoo-gui is a Windows-only application.
+          - os: ubuntu-latest
+            packages: --workspace --exclude evedoo-gui
+          - os: macos-latest
+            packages: --workspace --exclude evedoo-gui
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          components: clippy
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      - name: Clippy
+        run: cargo clippy ${{ matrix.packages }} --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test ${{ matrix.packages }} --locked
+
+  studio:
+    name: studio (npm build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: evedoo-studio
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: evedoo-studio/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run build
+
+  supply-chain:
+    name: licences and advisories (cargo-deny)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check licenses advisories bans sources
+
+  secrets:
+    name: secrets and stray data files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # A scan database and a captured --help containing an API key were once
+      # committed. Neither kind of file may be tracked again.
+      - name: No databases, scan output or .env files are tracked
+        run: |
+          bad=$(git ls-files | grep -E '(\.db|\.sqlite|\.sqlite-(wal|shm|journal))$|(^|/)\.env(\..*)?$' | grep -v -E '(^|/)\.env\.example$' || true)
+          if [ -n "$bad" ]; then
+            echo "These files must not be tracked:"
+            echo "$bad"
+            exit 1
+          fi
+
+      - name: Scan the tree for secrets (gitleaks)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf gitleaks.tar.gz -C "$RUNNER_TEMP/gitleaks" gitleaks
+          rm gitleaks.tar.gz
+          "$RUNNER_TEMP/gitleaks/gitleaks" dir . --no-banner --redact

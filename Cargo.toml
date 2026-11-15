@@ -1,0 +1,16 @@
+[workspace]
+members = ["evedoo", "cve-db-builder", "evedoo-gui", "evedoo-taskstate"]
+resolver = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+# A panic ends the process. The parsers for untrusted input (ELF, Mach-O, RPM,
+# receipts) are therefore written to be panic-free and are swept with
+# truncation/mutation tests.
+panic = "abort"
+# No local build paths or symbol names in shipped binaries.
+strip = "symbols"
+# An arithmetic overflow is a bug; fail loudly instead of continuing with a
+# wrapped offset or count.
+overflow-checks = true

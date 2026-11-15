@@ -1,0 +1,40 @@
+name: Wrong or missing finding
+description: A CVE was reported that does not apply, or one that applies was missed
+labels: [matching]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach a full scan report.** Give only the product in question.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: ["False positive (reported, does not apply)", "False negative (applies, not reported)"]
+    validations:
+      required: true
+  - type: input
+    id: product
+    attributes:
+      label: Product name and version, exactly as the scanner shows them
+      description: "`evedoo scan --show-unmatched` lists software that was inventoried but not matched"
+    validations:
+      required: true
+  - type: input
+    id: cve
+    attributes:
+      label: CVE ID(s)
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, Linux, macOS]
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why you believe the result is wrong
+      description: A vendor advisory or fixed-version reference helps
